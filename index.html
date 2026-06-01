@@ -106,12 +106,14 @@
           <button class="btn btn-yes" id="yesBtn" aria-label="Yes, I will go on a date with you">
             YES ❤️
           </button>
-          <button class="btn btn-no" id="noBtn" aria-label="No button — good luck clicking this!" tabindex="-1">
-            NO 😢
-          </button>
         </div>
       </div>
     </div>
+    <!-- NO button lives outside glass-card so glass-card's CSS transform
+         (from cardEntrance animation) never becomes its containing block -->
+    <button class="btn btn-no" id="noBtn" aria-label="No button — good luck clicking this!" tabindex="-1">
+      NO 😢
+    </button>
   </section>
 
   <!-- ═══════════════════════════════════════════
