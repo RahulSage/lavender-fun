@@ -242,32 +242,17 @@ function initQuestionPage() {
 
   yesBtn.addEventListener('click', handleYes);
 
-  // Mouse proximity for NO button
-  document.addEventListener('mousemove', e => {
-    if (state.currentPage !== 'question') return;
-    const rect = noBtn.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top  + rect.height / 2;
-    const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
-    if (dist < 120) runAwayNoBtn();
-  });
-
-  // Touch proximity for NO button
-  document.addEventListener('touchmove', e => {
-    if (state.currentPage !== 'question') return;
-    const touch = e.touches[0];
-    const rect = noBtn.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top  + rect.height / 2;
-    const dist = Math.hypot(touch.clientX - cx, touch.clientY - cy);
-    if (dist < 150) runAwayNoBtn();
-  }, { passive: true });
-
+  // NO button only runs away when the user actually tries to click it
   noBtn.addEventListener('click', e => {
     e.preventDefault();
     e.stopPropagation();
     runAwayNoBtn();
   });
+
+  noBtn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    runAwayNoBtn();
+  }, { passive: false });
 }
 
 function positionNoBtn() {

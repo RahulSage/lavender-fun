@@ -398,10 +398,7 @@ body.dark-mode .form-input {
 
 /* ── 12. Escape counter & message ── */
 .escape-counter {
-  font-size: 0.85rem;
-  color: var(--text-light);
-  margin-top: 10px;
-  letter-spacing: 0.05em;
+  display: none;
 }
 
 .escape-msg {
