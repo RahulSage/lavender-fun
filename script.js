@@ -493,12 +493,6 @@ function buildInvitationCard() {
 }
 
 function initInvitationPage() {
-  // Download PNG
-  $('downloadPng').addEventListener('click', downloadPng);
-
-  // Download PDF
-  $('downloadPdf').addEventListener('click', downloadPdf);
-
   // Share
   $('shareBtn').addEventListener('click', shareInvitation);
 
@@ -513,67 +507,6 @@ function initInvitationPage() {
   $('qrModal').addEventListener('click', e => {
     if (e.target === $('qrModal')) $('qrModal').hidden = true;
   });
-}
-
-/* ── Download PNG ── */
-async function downloadPng() {
-  const btn = $('downloadPng');
-  btn.disabled = true;
-  btn.textContent = '⏳ Generating...';
-
-  try {
-    const canvas = await html2canvas($('invitationCard'), {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: null,
-      logging: false,
-    });
-    const link = document.createElement('a');
-    link.download = `lavender-love-invitation-${state.name.toLowerCase()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    showToast('📸 Image downloaded!');
-  } catch (err) {
-    showToast('Could not generate image. Try a screenshot instead.');
-    console.error(err);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '📸 Download PNG';
-  }
-}
-
-/* ── Download PDF ── */
-async function downloadPdf() {
-  const btn = $('downloadPdf');
-  btn.disabled = true;
-  btn.textContent = '⏳ Generating...';
-
-  try {
-    const { jsPDF } = window.jspdf;
-    const canvas = await html2canvas($('invitationCard'), {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#faf0ff',
-      logging: false,
-    });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-    const pw = pdf.internal.pageSize.getWidth();
-    const ph = pdf.internal.pageSize.getHeight();
-    // Fit image
-    const ratio = canvas.width / canvas.height;
-    let iw = pw - 20, ih = iw / ratio;
-    if (ih > ph - 20) { ih = ph - 20; iw = ih * ratio; }
-    pdf.addImage(imgData, 'PNG', (pw - iw) / 2, 10, iw, ih);
-    pdf.save(`lavender-love-${state.name.toLowerCase()}.pdf`);
-    showToast('📄 PDF downloaded!');
-  } catch (err) {
-    showToast('PDF generation failed. Try PNG instead.');
-    console.error(err);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '📄 Download PDF';
-  }
 }
 
 /* ── Share ── */

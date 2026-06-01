@@ -990,10 +990,76 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-/* ── 28. Date input calendar icon colour ── */
+/* ── 28. Beautiful themed date & time pickers ── */
+
+/* Ensure colour-scheme matches light/dark so the browser popup matches */
+body.light-mode input[type="date"],
+body.light-mode input[type="time"] { color-scheme: light; }
+body.dark-mode  input[type="date"],
+body.dark-mode  input[type="time"] { color-scheme: dark; }
+
+/* The editable text portion */
+input[type="date"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit {
+  color: var(--text-dark);
+  font-family: var(--font-sans);
+  padding: 0;
+}
+
+/* Separators  /  :  between date parts */
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="time"]::-webkit-datetime-edit-text {
+  color: var(--soft-purple);
+  padding: 0 2px;
+}
+
+/* Individual field segments */
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field,
+input[type="time"]::-webkit-datetime-edit-ampm-field {
+  border-radius: 4px;
+  padding: 1px 3px;
+  transition: background 0.2s;
+}
+
+/* Highlighted/selected field */
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus,
+input[type="time"]::-webkit-datetime-edit-hour-field:focus,
+input[type="time"]::-webkit-datetime-edit-minute-field:focus,
+input[type="time"]::-webkit-datetime-edit-ampm-field:focus {
+  background: rgba(181, 126, 220, 0.22);
+  color: var(--text-dark);
+  outline: none;
+}
+
+/* Calendar / clock icon */
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
-  opacity: 0.7;
-  filter: hue-rotate(220deg);
+  border-radius: 6px;
+  padding: 4px;
+  /* Tint to lavender/purple */
+  filter: invert(0.4) sepia(1) saturate(4) hue-rotate(230deg) brightness(0.9);
+  opacity: 0.8;
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  transform: scale(1.25) rotate(-8deg);
+  opacity: 1;
+  background: rgba(181, 126, 220, 0.15);
+}
+
+/* Spin buttons (arrows) on time input */
+input[type="time"]::-webkit-inner-spin-button { display: none; }
+
+/* Placeholder text when empty (date not yet chosen) */
+input[type="date"]:not(:valid)::-webkit-datetime-edit {
+  color: var(--text-light);
 }
