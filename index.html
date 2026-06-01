@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A romantic proposal experience — Lavender Love" />
+  <title>Lavender Love 💜</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- html2canvas for PNG download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+
+  <!-- jsPDF for PDF download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+
+  <!-- canvas-confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" defer></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="light-mode" data-page="1">
+
+  <!-- ═══════════════════════════════════════════
+       FLOATING UI CONTROLS
+  ═══════════════════════════════════════════ -->
+  <div class="floating-controls" role="toolbar" aria-label="Site controls">
+    <!-- Dark mode toggle -->
+    <button class="ctrl-btn" id="darkModeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <span class="icon-light">🌙</span>
+      <span class="icon-dark">☀️</span>
+    </button>
+
+    <!-- Music toggle -->
+    <button class="ctrl-btn" id="musicToggle" aria-label="Toggle music" title="Toggle music">
+      <span id="musicIcon">🎵</span>
+    </button>
+  </div>
+
+  <!-- Background particles canvas -->
+  <canvas id="particleCanvas" aria-hidden="true"></canvas>
+
+  <!-- ═══════════════════════════════════════════
+       PAGE 1 — WELCOME
+  ═══════════════════════════════════════════ -->
+  <section class="page active" id="page-welcome" role="main" aria-label="Welcome page">
+    <div class="glass-card welcome-card" role="region" aria-label="Welcome form">
+      <div class="card-glow" aria-hidden="true"></div>
+      <div class="floating-hearts-small" aria-hidden="true"></div>
+
+      <div class="card-content">
+        <div class="emoji-anim" aria-hidden="true">💜</div>
+        <h1 class="heading-serif">Hello Beautiful ❤️</h1>
+        <p class="subheading">I have something special to ask you...</p>
+
+        <div class="form-group">
+          <label for="nameInput" class="form-label">What is your name?</label>
+          <input
+            type="text"
+            id="nameInput"
+            class="form-input"
+            placeholder="Enter your lovely name"
+            maxlength="40"
+            autocomplete="given-name"
+            aria-required="true"
+            aria-describedby="nameError"
+          />
+          <span class="error-msg" id="nameError" role="alert" aria-live="polite"></span>
+        </div>
+
+        <button class="btn btn-primary" id="welcomeBtn" aria-label="Continue to next page">
+          Continue <span aria-hidden="true">✨</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PAGE 2 — THE BIG QUESTION
+  ═══════════════════════════════════════════ -->
+  <section class="page" id="page-question" aria-label="The big question">
+    <div class="glass-card question-card" role="region" aria-label="Date proposal">
+      <div class="card-glow" aria-hidden="true"></div>
+
+      <div class="card-content">
+        <p class="greeting" id="nameGreeting" aria-live="polite"></p>
+        <h2 class="heading-serif question-heading">Will you go on a date<br/>with me?</h2>
+
+        <div class="big-heart" aria-hidden="true">
+          <span class="heart-pulse">❤️</span>
+        </div>
+
+        <div class="escape-counter" id="escapeCounter" aria-live="polite" aria-label="Number of escape attempts">
+          No Attempts: <span id="escapeCount">0</span>
+        </div>
+
+        <div class="escape-msg" id="escapeMsg" aria-live="assertive" role="status"></div>
+
+        <div class="question-buttons" id="questionButtons">
+          <button class="btn btn-yes" id="yesBtn" aria-label="Yes, I will go on a date with you">
+            YES ❤️
+          </button>
+          <button class="btn btn-no" id="noBtn" aria-label="No button — good luck clicking this!" tabindex="-1">
+            NO 😢
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PAGE 2.5 — FAKE LOADING / COMPATIBILITY CHECK
+  ═══════════════════════════════════════════ -->
+  <section class="page" id="page-loading" aria-label="Compatibility analysis">
+    <div class="glass-card loading-card" role="region" aria-label="Compatibility check progress">
+      <div class="card-glow" aria-hidden="true"></div>
+
+      <div class="card-content">
+        <div class="emoji-anim spin" aria-hidden="true">💜</div>
+        <h2 class="heading-serif">Checking Compatibility...</h2>
+
+        <ul class="compat-steps" id="compatSteps" aria-label="Compatibility check steps">
+          <li class="step" data-step="0" aria-live="polite">
+            <span class="step-icon">⏳</span>
+            <span>Analyzing Chemistry</span>
+          </li>
+          <li class="step" data-step="1" aria-live="polite">
+            <span class="step-icon">⏳</span>
+            <span>Measuring Smile Compatibility</span>
+          </li>
+          <li class="step" data-step="2" aria-live="polite">
+            <span class="step-icon">⏳</span>
+            <span>Calculating Shared Adventures</span>
+          </li>
+          <li class="step" data-step="3" aria-live="polite">
+            <span class="step-icon">⏳</span>
+            <span>Evaluating Future Coffee Dates</span>
+          </li>
+          <li class="step" data-step="4" aria-live="polite">
+            <span class="step-icon">⏳</span>
+            <span>Estimating Happiness Potential</span>
+          </li>
+        </ul>
+
+        <div class="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="match-result" id="matchResult" aria-live="polite" hidden>
+          <p class="match-percent">❤️ 99.99% MATCH ❤️</p>
+          <p class="achievement-label">Achievement Unlocked</p>
+          <p class="achievement-badge" aria-label="Trophy: Best Decision Ever">🏆 Best Decision Ever</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PAGE 3 — PLAN OUR DATE
+  ═══════════════════════════════════════════ -->
+  <section class="page" id="page-plan" aria-label="Plan our date">
+    <div class="glass-card plan-card" role="region" aria-label="Date planning form">
+      <div class="card-glow" aria-hidden="true"></div>
+
+      <div class="card-content">
+        <div class="emoji-anim" aria-hidden="true">🌸</div>
+        <h2 class="heading-serif">Yay! I knew you'd say yes ❤️</h2>
+        <p class="subheading">Let's plan our perfect date</p>
+
+        <form id="planForm" novalidate aria-label="Date planning form">
+          <div class="form-group">
+            <label for="dateInput" class="form-label">Preferred Date</label>
+            <input
+              type="date"
+              id="dateInput"
+              class="form-input"
+              required
+              aria-required="true"
+              aria-describedby="dateError"
+            />
+            <span class="error-msg" id="dateError" role="alert"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="timeInput" class="form-label">Preferred Time</label>
+            <input
+              type="time"
+              id="timeInput"
+              class="form-input"
+              required
+              aria-required="true"
+              aria-describedby="timeError"
+            />
+            <span class="error-msg" id="timeError" role="alert"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="dateType" class="form-label">Date Type</label>
+            <div class="select-wrap">
+              <select
+                id="dateType"
+                class="form-input form-select"
+                required
+                aria-required="true"
+                aria-describedby="typeError"
+              >
+                <option value="" disabled selected>Choose your perfect date...</option>
+                <option value="🌅 Breakfast by the Hillside">🌅 Breakfast by the Hillside</option>
+                <option value="☕ Cozy Coffee Date">☕ Cozy Coffee Date</option>
+                <option value="🌸 Botanical Garden Walk">🌸 Botanical Garden Walk</option>
+                <option value="🚣 Romantic Boat Ride">🚣 Romantic Boat Ride</option>
+                <option value="🎨 Art Gallery Stroll">🎨 Art Gallery Stroll</option>
+                <option value="🍷 Wine & Cheese Evening">🍷 Wine &amp; Cheese Evening</option>
+                <option value="🍽️ Fine Dining Lunch">🍽️ Fine Dining Lunch</option>
+                <option value="🕯️ Candle Light Dinner">🕯️ Candle Light Dinner</option>
+                <option value="🌌 Stargazing Night">🌌 Stargazing Night</option>
+                <option value="🎬 Private Movie Night">🎬 Private Movie Night</option>
+                <option value="🏖️ Sunset Walk">🏖️ Sunset Walk</option>
+                <option value="🎻 Live Music Evening">🎻 Live Music Evening</option>
+                <option value="🌹 Surprise Romantic Date">🌹 Surprise Romantic Date</option>
+                <option value="💞 You Decide">💞 You Decide</option>
+                <option value="☕ Cafe Hopping in Majnu Ka Tila (MKT)">☕ Cafe Hopping in Majnu Ka Tila (MKT)</option>
+                <option value="☕ Cafe Hopping in GTB Nagar">☕ Cafe Hopping in GTB Nagar</option>
+                <option value="🌮 Explore Street Food with Romantic Walks">🌮 Explore Street Food with Romantic Walks</option>
+                <option value="🚗 Long Drive with Late Night Chai">🚗 Long Drive with Late Night Chai</option>
+                <option value="🛍️ Market Exploration Date">🛍️ Market Exploration Date</option>
+                <option value="🌇 Sunset Rooftop Date">🌇 Sunset Rooftop Date</option>
+                <option value="🍦 Ice Cream & Random Conversations">🍦 Ice Cream &amp; Random Conversations</option>
+                <option value="📚 Bookstore & Coffee Date">📚 Bookstore &amp; Coffee Date</option>
+                <option value="🎯 Fun Activity Date">🎯 Fun Activity Date</option>
+                <option value="🌲 Picnic in the Park">🌲 Picnic in the Park</option>
+                <option value="❤️ Build Our Own Adventure">❤️ Build Our Own Adventure</option>
+              </select>
+            </div>
+            <span class="error-msg" id="typeError" role="alert"></span>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="confirmDateBtn">
+            Confirm Our Date ❤️
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PAGE 4 — INVITATION CARD
+  ═══════════════════════════════════════════ -->
+  <section class="page" id="page-invitation" aria-label="Invitation card">
+    <div class="invitation-outer" role="main">
+
+      <!-- Card wrapper for screenshot -->
+      <div class="invitation-card-wrap" id="invitationCardWrap">
+        <div class="invitation-card" id="invitationCard" role="article" aria-label="Date invitation card">
+
+          <!-- Corner decorations -->
+          <div class="corner corner-tl" aria-hidden="true">🌸</div>
+          <div class="corner corner-tr" aria-hidden="true">🌸</div>
+          <div class="corner corner-bl" aria-hidden="true">🌸</div>
+          <div class="corner corner-br" aria-hidden="true">🌸</div>
+
+          <!-- Sparkles inside card -->
+          <div class="card-sparkles" aria-hidden="true"></div>
+
+          <div class="inv-header">
+            <span class="inv-seal" aria-hidden="true">💌</span>
+            <h2 class="inv-title">OFFICIAL DATE INVITATION</h2>
+            <span class="inv-seal" aria-hidden="true">💌</span>
+          </div>
+
+          <div class="inv-divider" aria-hidden="true">✦ ✦ ✦</div>
+
+          <p class="inv-dear">Dear <span id="invName" class="inv-highlight"></span>,</p>
+
+          <p class="inv-body">
+            You are officially invited to a wonderful date.<br/>
+            Let's create beautiful memories together.
+          </p>
+
+          <div class="inv-details">
+            <div class="inv-row">
+              <span class="inv-icon" aria-hidden="true">📅</span>
+              <span class="inv-label">Date</span>
+              <span class="inv-value" id="invDate"></span>
+            </div>
+            <div class="inv-row">
+              <span class="inv-icon" aria-hidden="true">🕐</span>
+              <span class="inv-label">Time</span>
+              <span class="inv-value" id="invTime"></span>
+            </div>
+            <div class="inv-row">
+              <span class="inv-icon" aria-hidden="true">💜</span>
+              <span class="inv-label">Date Type</span>
+              <span class="inv-value" id="invType"></span>
+            </div>
+          </div>
+
+          <div class="inv-divider" aria-hidden="true">✦ ✦ ✦</div>
+
+          <p class="inv-message">
+            I cannot wait to spend this special time with you<br/>
+            and create beautiful memories together.
+          </p>
+
+          <p class="inv-signature">With Love ❤️</p>
+
+          <div class="inv-hearts" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <!-- ── Countdown Timer ── -->
+      <div class="countdown-section" role="region" aria-label="Countdown to date">
+        <p class="countdown-title">Counting down to our date ❤️</p>
+        <div class="countdown-grid">
+          <div class="countdown-cell">
+            <span class="countdown-num" id="cdDays" aria-label="Days">00</span>
+            <span class="countdown-lbl">Days</span>
+          </div>
+          <div class="countdown-sep" aria-hidden="true">:</div>
+          <div class="countdown-cell">
+            <span class="countdown-num" id="cdHours" aria-label="Hours">00</span>
+            <span class="countdown-lbl">Hours</span>
+          </div>
+          <div class="countdown-sep" aria-hidden="true">:</div>
+          <div class="countdown-cell">
+            <span class="countdown-num" id="cdMins" aria-label="Minutes">00</span>
+            <span class="countdown-lbl">Minutes</span>
+          </div>
+          <div class="countdown-sep" aria-hidden="true">:</div>
+          <div class="countdown-cell">
+            <span class="countdown-num" id="cdSecs" aria-label="Seconds">00</span>
+            <span class="countdown-lbl">Seconds</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Download / Share Controls ── -->
+      <div class="inv-actions" role="group" aria-label="Share and download options">
+        <button class="btn btn-action" id="downloadPng" aria-label="Download invitation as PNG image">
+          📸 Download PNG
+        </button>
+        <button class="btn btn-action" id="downloadPdf" aria-label="Download invitation as PDF">
+          📄 Download PDF
+        </button>
+        <button class="btn btn-action" id="shareBtn" aria-label="Share invitation">
+          🔗 Share
+        </button>
+        <button class="btn btn-action" id="copyTextBtn" aria-label="Copy invitation text">
+          📋 Copy Text
+        </button>
+        <button class="btn btn-action" id="generateQr" aria-label="Generate QR code">
+          🔳 QR Code
+        </button>
+      </div>
+
+      <!-- QR Modal -->
+      <div class="qr-modal" id="qrModal" role="dialog" aria-modal="true" aria-label="QR Code" hidden>
+        <div class="qr-inner">
+          <button class="qr-close" id="qrClose" aria-label="Close QR code">✕</button>
+          <h3>Scan to view invitation</h3>
+          <div id="qrCanvas"></div>
+        </div>
+      </div>
+
+      <!-- ── Relationship Meter ── -->
+      <div class="rel-meter-section" role="region" aria-label="Relationship compatibility meter">
+        <p class="rel-meter-title">Relationship Compatibility</p>
+        <div class="rel-meter-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="relMeterBar">
+          <div class="rel-meter-fill" id="relMeterFill"></div>
+          <span class="rel-meter-pct" id="relMeterPct" aria-live="polite">0%</span>
+        </div>
+      </div>
+
+      <!-- ── Success messages ── -->
+      <div class="success-messages" aria-live="polite" role="status" id="successMessages">
+        <p class="success-msg">Best Decision Ever 😌</p>
+        <p class="success-msg">Future Favorite Memory Unlocked ❤️</p>
+        <p class="success-msg">You Have Excellent Taste 😎</p>
+        <p class="success-msg">Date Confirmed Successfully 🎉</p>
+      </div>
+
+      <!-- ── PS Section ── -->
+      <div class="ps-section" role="complementary" aria-label="Postscript message">
+        <div class="ps-hearts" aria-hidden="true"></div>
+        <p class="ps-text">
+          P.S. I was secretly hoping you'd say YES from the very beginning ❤️
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       TOAST NOTIFICATION
+  ═══════════════════════════════════════════ -->
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ═══════════════════════════════════════════
+       EASTER EGG MODAL
+  ═══════════════════════════════════════════ -->
+  <div class="easter-modal" id="easterModal" role="dialog" aria-modal="true" aria-label="Secret Romance Mode" hidden>
+    <div class="easter-inner">
+      <div class="easter-hearts" aria-hidden="true"></div>
+      <h2>Secret Romance Mode Activated ❤️</h2>
+      <p class="achievement-badge golden">🏆 Hopeless Romantic</p>
+      <button class="btn btn-primary" id="easterClose" aria-label="Close secret romance mode">
+        Yay! 💜
+      </button>
+    </div>
+  </div>
+
+  <!-- Background audio (Web Audio API sine-wave fallback) -->
+  <audio id="bgAudio" loop preload="none" aria-hidden="true">
+    <!-- No hosted audio file needed; tones generated via Web Audio API -->
+  </audio>
+
+  <script src="script.js"></script>
+</body>
+</html>

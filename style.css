@@ -1,0 +1,999 @@
+/* ============================================================
+   LAVENDER LOVE — style.css
+   Romantic proposal website · GitHub Pages ready
+   ============================================================ */
+
+/* ── 1. CSS Custom Properties ── */
+:root {
+  --lavender:      #E6E6FA;
+  --soft-purple:   #B57EDC;
+  --blush:         #FFD1DC;
+  --white:         #FFFFFF;
+  --gold:          #FFD700;
+  --gold-dark:     #C9A227;
+  --text-dark:     #3a2a4a;
+  --text-mid:      #6b4f7a;
+  --text-light:    #9c7ab5;
+  --glass-bg:      rgba(255,255,255,0.45);
+  --glass-border:  rgba(255,255,255,0.65);
+  --glass-shadow:  0 8px 48px rgba(181,126,220,0.22);
+  --radius-lg:     24px;
+  --radius-md:     16px;
+  --radius-sm:     10px;
+  --transition:    0.35s cubic-bezier(.4,0,.2,1);
+  --font-serif:    'Playfair Display', Georgia, serif;
+  --font-script:   'Dancing Script', cursive;
+  --font-sans:     'Lato', system-ui, sans-serif;
+}
+
+/* Dark mode overrides */
+body.dark-mode {
+  --lavender:      #1e1428;
+  --soft-purple:   #9b5fc9;
+  --blush:         #3d1e2b;
+  --white:         #f0e8ff;
+  --text-dark:     #f0e8ff;
+  --text-mid:      #d4b8f0;
+  --text-light:    #a889cc;
+  --glass-bg:      rgba(30,15,45,0.62);
+  --glass-border:  rgba(155,95,201,0.35);
+  --glass-shadow:  0 8px 48px rgba(100,40,160,0.45);
+}
+
+/* ── 2. Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: linear-gradient(135deg, #f3e8ff 0%, #ffe4ef 35%, #e8d5ff 65%, #fce4ec 100%);
+  min-height: 100vh;
+  color: var(--text-dark);
+  overflow-x: hidden;
+  transition: background var(--transition), color var(--transition);
+  position: relative;
+}
+
+body.dark-mode {
+  background: linear-gradient(135deg, #12091c 0%, #1e0d2b 40%, #160a25 70%, #1a0c1f 100%);
+}
+
+/* ── 3. Particle Canvas ── */
+#particleCanvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 4. Floating Controls ── */
+.floating-controls {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1000;
+  display: flex;
+  gap: 10px;
+}
+
+.ctrl-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+  box-shadow: var(--glass-shadow);
+}
+
+.ctrl-btn:hover { transform: scale(1.12); }
+.ctrl-btn:focus-visible {
+  outline: 3px solid var(--soft-purple);
+  outline-offset: 2px;
+}
+
+/* Show/hide sun-moon icons based on mode */
+body.light-mode .icon-dark,
+body.dark-mode  .icon-light { display: none; }
+body.dark-mode  .icon-dark,
+body.light-mode .icon-light  { display: inline; }
+
+/* ── 5. Page System ── */
+.page {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.55s ease;
+  overflow-y: auto;
+}
+
+.page.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Invitation page needs scroll */
+#page-invitation {
+  align-items: flex-start;
+  padding: 80px 20px 40px;
+  overflow-y: auto;
+  position: absolute;
+}
+
+/* ── 6. Glass Card ── */
+.glass-card {
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--glass-shadow);
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  animation: cardEntrance 0.6s cubic-bezier(.22,.68,0,1.4) both;
+}
+
+@keyframes cardEntrance {
+  from { opacity:0; transform: translateY(30px) scale(0.96); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+
+.card-glow {
+  position: absolute;
+  inset: -60px;
+  background: radial-gradient(circle at 50% 0%, rgba(181,126,220,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.card-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+/* ── 7. Typography ── */
+.heading-serif {
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  color: var(--text-dark);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+
+.subheading {
+  font-size: 1rem;
+  color: var(--text-mid);
+  margin-bottom: 28px;
+  font-style: italic;
+}
+
+.greeting {
+  font-family: var(--font-script);
+  font-size: 1.4rem;
+  color: var(--soft-purple);
+  margin-bottom: 6px;
+}
+
+.question-heading {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  margin-bottom: 16px;
+}
+
+/* ── 8. Emoji animation ── */
+.emoji-anim {
+  font-size: 3rem;
+  display: block;
+  margin: 0 auto 20px;
+  animation: floatBob 3s ease-in-out infinite;
+}
+.emoji-anim.spin { animation: spinPulse 2s ease-in-out infinite; }
+
+@keyframes floatBob {
+  0%,100% { transform: translateY(0);    }
+  50%      { transform: translateY(-10px);}
+}
+@keyframes spinPulse {
+  0%,100% { transform: scale(1) rotate(0deg);   }
+  50%      { transform: scale(1.15) rotate(20deg); }
+}
+
+/* ── 9. Form elements ── */
+.form-group { margin-bottom: 20px; text-align: left; }
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-mid);
+  margin-bottom: 8px;
+  letter-spacing: 0.03em;
+}
+
+.form-input {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1.5px solid rgba(181,126,220,0.35);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.6);
+  color: var(--text-dark);
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+body.dark-mode .form-input {
+  background: rgba(40,20,60,0.55);
+  color: var(--text-dark);
+  border-color: rgba(155,95,201,0.4);
+}
+
+.form-input:focus {
+  border-color: var(--soft-purple);
+  box-shadow: 0 0 0 3px rgba(181,126,220,0.22);
+}
+
+.form-input::placeholder { color: var(--text-light); }
+
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--soft-purple);
+  font-size: 1.1rem;
+}
+.form-select { appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 36px; }
+
+.error-msg {
+  display: block;
+  font-size: 0.82rem;
+  color: #e05575;
+  margin-top: 5px;
+  min-height: 18px;
+}
+
+/* Shake animation */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-6px); }
+  80%      { transform: translateX(6px); }
+}
+.shake { animation: shake 0.45s ease; }
+
+/* ── 10. Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: none;
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  letter-spacing: 0.03em;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.2s;
+  border-radius: inherit;
+}
+.btn:hover::after  { background: rgba(255,255,255,0.12); }
+.btn:active::after { background: rgba(0,0,0,0.06); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--soft-purple), #9b5fc9);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(181,126,220,0.4);
+  margin-top: 8px;
+  width: 100%;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(181,126,220,0.55);
+}
+.btn-primary:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* YES / NO buttons */
+.question-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.btn-yes {
+  background: linear-gradient(135deg, #e85d8a, #c2185b);
+  color: #fff;
+  padding: 14px 36px;
+  font-size: 1.05rem;
+  box-shadow: 0 4px 20px rgba(232,93,138,0.45);
+}
+.btn-yes:hover {
+  transform: scale(1.06);
+  box-shadow: 0 8px 28px rgba(232,93,138,0.55);
+}
+.btn-yes:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+.btn-no {
+  background: linear-gradient(135deg, #aaa, #888);
+  color: #fff;
+  padding: 14px 36px;
+  font-size: 1.05rem;
+  user-select: none;
+  position: fixed; /* will be repositioned by JS */
+  transition: top 0.22s cubic-bezier(.22,.68,0,1.6), left 0.22s cubic-bezier(.22,.68,0,1.6), transform 0.22s ease;
+  z-index: 200;
+}
+.btn-no:hover { cursor: not-allowed; }
+
+/* Action buttons on invitation page */
+.btn-action {
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  color: var(--text-dark);
+  padding: 11px 20px;
+  font-size: 0.88rem;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 12px rgba(181,126,220,0.18);
+}
+.btn-action:hover {
+  transform: translateY(-2px);
+  background: rgba(181,126,220,0.15);
+  box-shadow: 0 6px 20px rgba(181,126,220,0.3);
+}
+.btn-action:focus-visible { outline: 3px solid var(--soft-purple); outline-offset: 2px; }
+
+/* ── 11. Pulsing Heart ── */
+.big-heart { margin: 16px auto 8px; font-size: 3rem; }
+.heart-pulse {
+  display: inline-block;
+  animation: heartbeat 1.2s ease-in-out infinite;
+}
+@keyframes heartbeat {
+  0%,100% { transform: scale(1); }
+  14%      { transform: scale(1.3); }
+  28%      { transform: scale(1); }
+  42%      { transform: scale(1.18); }
+  70%      { transform: scale(1); }
+}
+
+/* ── 12. Escape counter & message ── */
+.escape-counter {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-top: 10px;
+  letter-spacing: 0.05em;
+}
+
+.escape-msg {
+  font-family: var(--font-script);
+  font-size: 1.2rem;
+  color: var(--soft-purple);
+  min-height: 32px;
+  margin-top: 6px;
+  transition: opacity 0.3s;
+}
+
+/* ── 13. Compatibility / Loading Page ── */
+.loading-card { max-width: 520px; }
+
+.compat-steps {
+  list-style: none;
+  text-align: left;
+  margin: 24px 0 20px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  color: var(--text-mid);
+  background: rgba(181,126,220,0.07);
+  transition: background 0.3s, color 0.3s;
+}
+
+.step.done {
+  color: var(--text-dark);
+  background: rgba(181,126,220,0.18);
+}
+
+.step-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 12px;
+  border-radius: 100px;
+  background: rgba(181,126,220,0.2);
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--blush), var(--soft-purple));
+  transition: width 0.4s ease;
+  box-shadow: 0 0 8px rgba(181,126,220,0.6);
+}
+
+.match-result { text-align: center; }
+
+.match-percent {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--soft-purple);
+  animation: glowPulse 2s ease-in-out infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes glowPulse {
+  0%,100% { text-shadow: 0 0 8px rgba(181,126,220,0.4); }
+  50%      { text-shadow: 0 0 24px rgba(181,126,220,0.9); }
+}
+
+.achievement-label {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.achievement-badge {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gold-dark);
+  display: inline-block;
+  animation: badgeBounce 0.6s ease;
+}
+
+@keyframes badgeBounce {
+  0%   { transform: scale(0); }
+  70%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ── 14. Plan page ── */
+.plan-card { max-width: 500px; }
+
+/* ── 15. Invitation Card ── */
+.invitation-outer {
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+}
+
+.invitation-card-wrap {
+  width: 100%;
+  filter: drop-shadow(0 12px 48px rgba(181,126,220,0.4));
+}
+
+.invitation-card {
+  background: linear-gradient(145deg, #faf0ff 0%, #fff0f8 40%, #f5eaff 70%, #fff5fd 100%);
+  border: 2.5px solid rgba(255,215,0,0.35);
+  border-radius: 28px;
+  padding: 48px 44px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  animation: cardEntrance 0.7s cubic-bezier(.22,.68,0,1.4) both;
+}
+
+body.dark-mode .invitation-card {
+  background: linear-gradient(145deg, #1e1030 0%, #200d28 40%, #1a0c24 70%, #1e1030 100%);
+  border-color: rgba(255,215,0,0.2);
+}
+
+/* Floral corners */
+.corner {
+  position: absolute;
+  font-size: 2.2rem;
+  line-height: 1;
+  animation: floatBob 4s ease-in-out infinite;
+}
+.corner-tl { top: 12px;  left: 12px;  animation-delay: 0s; }
+.corner-tr { top: 12px;  right: 12px; animation-delay: 0.5s; transform: scaleX(-1); }
+.corner-bl { bottom: 12px; left: 12px;  animation-delay: 1s; transform: scaleY(-1); }
+.corner-br { bottom: 12px; right: 12px; animation-delay: 1.5s; transform: scale(-1,-1); }
+
+.inv-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.inv-seal { font-size: 2rem; animation: floatBob 3s ease-in-out infinite; }
+
+.inv-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  color: var(--text-dark);
+  letter-spacing: 0.12em;
+  font-weight: 700;
+}
+
+.inv-divider {
+  color: var(--gold);
+  letter-spacing: 0.5em;
+  margin: 14px 0;
+  font-size: 0.9rem;
+}
+
+.inv-dear {
+  font-family: var(--font-script);
+  font-size: 1.5rem;
+  color: var(--text-mid);
+  margin-bottom: 10px;
+}
+
+.inv-highlight {
+  color: var(--soft-purple);
+  font-weight: 700;
+}
+
+.inv-body {
+  font-size: 0.95rem;
+  color: var(--text-mid);
+  line-height: 1.8;
+  margin-bottom: 22px;
+  font-style: italic;
+}
+
+.inv-details {
+  background: rgba(181,126,220,0.08);
+  border: 1px solid rgba(181,126,220,0.2);
+  border-radius: var(--radius-md);
+  padding: 18px 24px;
+  margin: 0 auto 22px;
+  max-width: 340px;
+}
+
+.inv-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(181,126,220,0.12);
+}
+.inv-row:last-child { border-bottom: none; }
+
+.inv-icon { font-size: 1.2rem; }
+.inv-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex: 1;
+  text-align: left;
+}
+.inv-value {
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  font-weight: 600;
+  text-align: right;
+  flex: 2;
+}
+
+.inv-message {
+  font-size: 0.95rem;
+  color: var(--text-mid);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.inv-signature {
+  font-family: var(--font-script);
+  font-size: 1.6rem;
+  color: var(--soft-purple);
+  font-weight: 700;
+}
+
+.inv-hearts {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 1.1rem;
+}
+
+/* Sparkles in card */
+.card-sparkles span {
+  position: absolute;
+  animation: twinkle 2.5s ease-in-out infinite;
+  pointer-events: none;
+  font-size: 0.9rem;
+}
+@keyframes twinkle {
+  0%,100% { opacity:0; transform: scale(0.5); }
+  50%      { opacity:1; transform: scale(1.2); }
+}
+
+/* ── 16. Countdown ── */
+.countdown-section { text-align: center; width: 100%; }
+
+.countdown-title {
+  font-family: var(--font-script);
+  font-size: 1.3rem;
+  color: var(--soft-purple);
+  margin-bottom: 16px;
+}
+
+.countdown-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.countdown-cell {
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-md);
+  padding: 14px 20px;
+  min-width: 72px;
+  text-align: center;
+}
+
+.countdown-num {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--soft-purple);
+  line-height: 1;
+}
+
+.countdown-lbl {
+  font-size: 0.72rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+  display: block;
+}
+
+.countdown-sep {
+  font-size: 2rem;
+  color: var(--soft-purple);
+  font-weight: 700;
+  padding-bottom: 18px;
+}
+
+/* ── 17. Actions ── */
+.inv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ── 18. QR Modal ── */
+.qr-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.qr-inner {
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  text-align: center;
+  position: relative;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: var(--glass-shadow);
+  animation: cardEntrance 0.4s ease both;
+}
+
+.qr-inner h3 {
+  font-family: var(--font-serif);
+  color: var(--text-dark);
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.qr-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text-mid);
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.qr-close:hover { background: rgba(181,126,220,0.15); }
+
+#qrCanvas canvas, #qrCanvas img {
+  border-radius: 12px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ── 19. Relationship Meter ── */
+.rel-meter-section { width: 100%; text-align: center; }
+
+.rel-meter-title {
+  font-family: var(--font-script);
+  font-size: 1.2rem;
+  color: var(--soft-purple);
+  margin-bottom: 12px;
+}
+
+.rel-meter-bar {
+  width: 100%;
+  height: 22px;
+  background: rgba(181,126,220,0.15);
+  border-radius: 100px;
+  overflow: hidden;
+  position: relative;
+  border: 1.5px solid rgba(181,126,220,0.25);
+}
+
+.rel-meter-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--blush), var(--soft-purple), var(--gold));
+  border-radius: 100px;
+  transition: width 0.06s linear;
+  box-shadow: 0 0 10px rgba(181,126,220,0.5);
+}
+
+.rel-meter-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  mix-blend-mode: multiply;
+}
+
+body.dark-mode .rel-meter-pct { mix-blend-mode: screen; color: #fff; }
+
+/* ── 20. Success Messages ── */
+.success-messages { text-align: center; }
+
+.success-msg {
+  font-family: var(--font-script);
+  font-size: 1.2rem;
+  color: var(--soft-purple);
+  padding: 6px 0;
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.success-msg:nth-child(1) { animation-delay: 0.2s; }
+.success-msg:nth-child(2) { animation-delay: 0.8s; }
+.success-msg:nth-child(3) { animation-delay: 1.4s; }
+.success-msg:nth-child(4) { animation-delay: 2.0s; }
+
+@keyframes fadeInUp {
+  from { opacity:0; transform: translateY(12px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ── 21. PS Section ── */
+.ps-section {
+  text-align: center;
+  padding: 28px 20px;
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.ps-text {
+  font-family: var(--font-script);
+  font-size: clamp(1.1rem, 3vw, 1.45rem);
+  color: var(--text-dark);
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+}
+
+.ps-hearts span {
+  position: absolute;
+  animation: floatUp 3s ease-in-out infinite;
+  pointer-events: none;
+  font-size: 1.2rem;
+  z-index: 1;
+}
+
+@keyframes floatUp {
+  0%   { transform: translateY(0) scale(1);   opacity: 0.7; }
+  80%  { opacity: 0.3; }
+  100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
+}
+
+/* ── 22. Toast ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  color: var(--text-dark);
+  padding: 12px 28px;
+  border-radius: 100px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  z-index: 2000;
+  box-shadow: 0 8px 32px rgba(181,126,220,0.35);
+  transition: transform 0.4s cubic-bezier(.22,.68,0,1.4), opacity 0.4s ease;
+  opacity: 0;
+  white-space: nowrap;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ── 23. Easter Egg Modal ── */
+.easter-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(8px);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.easter-inner {
+  background: var(--glass-bg);
+  border: 2px solid var(--gold);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 44px 36px;
+  text-align: center;
+  max-width: 380px;
+  width: 100%;
+  position: relative;
+  animation: cardEntrance 0.5s cubic-bezier(.22,.68,0,1.4) both;
+  box-shadow: 0 0 60px rgba(255,215,0,0.3);
+}
+
+.easter-inner h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  color: var(--text-dark);
+  margin-bottom: 14px;
+}
+
+.achievement-badge.golden { color: var(--gold); margin-bottom: 24px; }
+
+.easter-hearts span {
+  position: absolute;
+  animation: floatUp 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── 24. Floating mini hearts ── */
+.floating-hearts-small span {
+  position: absolute;
+  animation: floatUp 3s ease-in-out infinite;
+  pointer-events: none;
+  font-size: 1.1rem;
+  z-index: 1;
+}
+
+/* ── 25. Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── 26. Responsive ── */
+@media (max-width: 600px) {
+  .glass-card { padding: 32px 22px; }
+  .invitation-card { padding: 36px 22px; }
+  .inv-actions { gap: 8px; }
+  .btn-action { font-size: 0.8rem; padding: 10px 14px; }
+  .countdown-cell { min-width: 58px; padding: 10px 12px; }
+  .countdown-num { font-size: 1.5rem; }
+  .page { padding: 14px; }
+  #page-invitation { padding: 70px 14px 30px; }
+}
+
+@media (max-width: 380px) {
+  .question-buttons { flex-direction: column; align-items: center; }
+  .btn-yes, .btn-no { width: 100%; max-width: 220px; }
+}
+
+/* ── 27. Focus outline for all interactive elements ── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--soft-purple);
+  outline-offset: 2px;
+}
+
+/* ── 28. Date input calendar icon colour ── */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  filter: hue-rotate(220deg);
+}
