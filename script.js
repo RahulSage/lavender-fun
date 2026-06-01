@@ -493,39 +493,222 @@ function buildInvitationCard() {
 }
 
 function initInvitationPage() {
-  // Share
-  $('shareBtn').addEventListener('click', shareInvitation);
+  // Download image (canvas-based, no external library)
+  $('downloadImg').addEventListener('click', downloadAsImage);
 
   // Copy text
   $('copyTextBtn').addEventListener('click', copyInvitationText);
-
-  // QR Code
-  $('generateQr').addEventListener('click', showQr);
-  $('qrClose').addEventListener('click', () => { $('qrModal').hidden = true; });
-
-  // Close QR on backdrop click
-  $('qrModal').addEventListener('click', e => {
-    if (e.target === $('qrModal')) $('qrModal').hidden = true;
-  });
 }
 
-/* ── Share ── */
-async function shareInvitation() {
-  const text = buildInvitationText();
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: '💌 Our Date Invitation', text });
-      showToast('✅ Shared successfully!');
-    } catch (err) {
-      if (err.name !== 'AbortError') showToast('Sharing failed — try Copy Text instead.');
+/* ── Download Image (pure Canvas — no external lib, no CORS issues) ── */
+async function downloadAsImage() {
+  const btn = $('downloadImg');
+  btn.disabled = true;
+  btn.textContent = '⏳ Creating...';
+
+  try {
+    // Ensure web fonts are ready before drawing
+    await document.fonts.ready;
+
+    const W = 800, H = 640, DPR = 2;
+    const canvas = document.createElement('canvas');
+    canvas.width  = W * DPR;
+    canvas.height = H * DPR;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(DPR, DPR);
+
+    // Polyfill roundRect for older browsers
+    function rRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
     }
-  } else {
-    await copyToClipboard(text);
-    showToast('📋 Copied! Paste it anywhere to share.');
+
+    /* ── Background gradient ── */
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0,   '#faf0ff');
+    bg.addColorStop(0.4, '#fff0f8');
+    bg.addColorStop(0.7, '#f5eaff');
+    bg.addColorStop(1,   '#fff5fd');
+    rRect(0, 0, W, H, 28);
+    ctx.fillStyle = bg;
+    ctx.fill();
+
+    /* ── Subtle radial glow from top ── */
+    const glow = ctx.createRadialGradient(W / 2, 0, 0, W / 2, 0, W * 0.75);
+    glow.addColorStop(0, 'rgba(181,126,220,0.13)');
+    glow.addColorStop(1, 'rgba(181,126,220,0)');
+    ctx.fillStyle = glow;
+    rRect(0, 0, W, H, 28);
+    ctx.fill();
+
+    /* ── Gold outer border ── */
+    rRect(10, 10, W - 20, H - 20, 22);
+    ctx.strokeStyle = 'rgba(255,215,0,0.55)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    /* ── Inner purple border ── */
+    rRect(20, 20, W - 40, H - 40, 17);
+    ctx.strokeStyle = 'rgba(181,126,220,0.18)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    /* ── Corner flowers ── */
+    ctx.font = '32px serif';
+    ctx.textBaseline = 'top';
+    ctx.fillText('🌸', 26, 26);
+    ctx.fillText('🌸', W - 62, 26);
+    ctx.fillText('🌸', 26, H - 58);
+    ctx.fillText('🌸', W - 62, H - 58);
+
+    /* ── Seal icons + title ── */
+    ctx.textBaseline = 'middle';
+    ctx.textAlign    = 'center';
+
+    ctx.font = '22px serif';
+    ctx.fillText('💌', W / 2 - 168, 76);
+    ctx.fillText('💌', W / 2 + 168, 76);
+
+    ctx.font = 'bold 13px "Lato", sans-serif';
+    ctx.fillStyle = '#3a2a4a';
+    ctx.fillText('OFFICIAL DATE INVITATION', W / 2, 76);
+
+    /* ── Gold divider ── */
+    ctx.font = '14px serif';
+    ctx.fillStyle = '#C9A227';
+    ctx.fillText('✦   ✦   ✦', W / 2, 104);
+
+    /* ── Dear Name ── */
+    ctx.font = '28px "Dancing Script", "Dancing Script", cursive';
+    ctx.fillStyle = '#6b4f7a';
+    ctx.fillText(`Dear ${state.name},`, W / 2, 145);
+
+    /* ── Body copy ── */
+    ctx.font = 'italic 14px "Lato", sans-serif';
+    ctx.fillStyle = '#9c7ab5';
+    ctx.fillText('You are officially invited to a wonderful date.', W / 2, 178);
+    ctx.fillText("Let's create beautiful memories together.", W / 2, 200);
+
+    /* ── Divider 2 ── */
+    ctx.font = '14px serif';
+    ctx.fillStyle = '#C9A227';
+    ctx.fillText('✦   ✦   ✦', W / 2, 225);
+
+    /* ── Details box ── */
+    const bx = 140, by = 244, bw = 520, bh = 162, br = 14;
+    rRect(bx, by, bw, bh, br);
+    ctx.fillStyle = 'rgba(181,126,220,0.07)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(181,126,220,0.2)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    const dateObj = new Date(state.date + 'T00:00:00');
+    const dateStr = dateObj.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const [hh, mm] = state.time.split(':');
+    const hr12 = (parseInt(hh, 10) % 12) || 12;
+    const ampm = parseInt(hh, 10) >= 12 ? 'PM' : 'AM';
+    const timeStr = `${hr12}:${mm} ${ampm}`;
+
+    const rows = [
+      { icon: '📅', label: 'DATE',      value: dateStr      },
+      { icon: '🕐', label: 'TIME',      value: timeStr      },
+      { icon: '💜', label: 'DATE TYPE', value: state.dateType },
+    ];
+
+    rows.forEach((row, i) => {
+      const ry = by + 38 + i * 46;
+
+      // Icon
+      ctx.font = '17px serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(row.icon, bx + 16, ry);
+
+      // Label (small caps style)
+      ctx.font = 'bold 10px "Lato", sans-serif';
+      ctx.fillStyle = '#9c7ab5';
+      ctx.fillText(row.label, bx + 46, ry - 8);
+
+      // Value — truncate if too wide
+      ctx.font = '600 13px "Lato", sans-serif';
+      ctx.fillStyle = '#3a2a4a';
+      ctx.textAlign = 'right';
+      let val = row.value;
+      const maxW = bw - 72;
+      while (ctx.measureText(val).width > maxW && val.length > 8) {
+        val = val.slice(0, -4) + '…';
+      }
+      ctx.fillText(val, bx + bw - 16, ry);
+
+      // Row separator
+      if (i < rows.length - 1) {
+        ctx.beginPath();
+        ctx.moveTo(bx + 16, ry + 20);
+        ctx.lineTo(bx + bw - 16, ry + 20);
+        ctx.strokeStyle = 'rgba(181,126,220,0.12)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    });
+
+    /* ── Closing message ── */
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '14px "Lato", sans-serif';
+    ctx.fillStyle = '#6b4f7a';
+    ctx.fillText('I cannot wait to spend this special time with you', W / 2, 444);
+    ctx.fillText('and create beautiful memories together.', W / 2, 466);
+
+    /* ── Signature ── */
+    ctx.font = '30px "Dancing Script", cursive';
+    ctx.fillStyle = '#B57EDC';
+    ctx.fillText('With Love ❤️', W / 2, 514);
+
+    /* ── Bottom hearts row ── */
+    ctx.font = '20px serif';
+    const hearts = ['❤️','💜','💕','💖','💜','❤️'];
+    const gap = 40;
+    const startX = W / 2 - ((hearts.length - 1) * gap) / 2;
+    hearts.forEach((h, i) => ctx.fillText(h, startX + i * gap, 560));
+
+    /* ── Sparkle accents ── */
+    ctx.font = '14px serif';
+    [
+      [60, 160], [W - 60, 160], [50, H / 2], [W - 50, H / 2],
+      [80, H - 140], [W - 80, H - 140],
+    ].forEach(([sx, sy]) => ctx.fillText('✨', sx, sy));
+
+    /* ── Export ── */
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a   = document.createElement('a');
+      a.download = `lavender-love-${(state.name || 'invitation').toLowerCase().replace(/\s+/g, '-')}.png`;
+      a.href = url;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('📸 Image saved!');
+    }, 'image/png');
+
+  } catch (err) {
+    showToast('Could not generate image — try a screenshot.');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📸 Download Image';
   }
 }
 
-/* ── Copy text ── */
+/* ── Copy Text ── */
 async function copyInvitationText() {
   const text = buildInvitationText();
   await copyToClipboard(text);
@@ -565,29 +748,6 @@ async function copyToClipboard(text) {
     ta.select();
     document.execCommand('copy');
     ta.remove();
-  }
-}
-
-/* ── QR Code ── */
-function showQr() {
-  const canvas = $('qrCanvas');
-  canvas.innerHTML = '';
-
-  const qrText = `Lavender Love Date Invitation\nName: ${state.name}\nDate: ${state.date}\nTime: ${state.time}\nType: ${state.dateType}`;
-
-  try {
-    new QRCode(canvas, {
-      text: qrText,
-      width: 200,
-      height: 200,
-      colorDark: '#B57EDC',
-      colorLight: '#FFFFFF',
-      correctLevel: QRCode.CorrectLevel.M,
-    });
-    $('qrModal').hidden = false;
-  } catch (err) {
-    showToast('QR generation failed.');
-    console.error(err);
   }
 }
 
