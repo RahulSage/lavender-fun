@@ -15,7 +15,7 @@ const state = {
   dateType: '',
   escapeCount: 0,
   countdownInterval: null,
-  relMeterRAF: null,
+  relMeterInterval: null,
   audioCtx: null,
   musicNodes: null,
   musicPlaying: false,
@@ -674,28 +674,37 @@ function startCountdown() {
    RELATIONSHIP METER
 ────────────────────────────────────────── */
 function animateRelMeter() {
-  let pct = 0;
   const fill = $('relMeterFill');
   const pctEl = $('relMeterPct');
-  const bar = $('relMeterBar');
+  const bar   = $('relMeterBar');
 
-  function step() {
-    pct += 0.4;
-    if (pct > 99.99) pct = 99.99;
-    const display = pct >= 99.99 ? '99.99%' : pct.toFixed(1) + '%';
-    fill.style.width = pct + '%';
-    pctEl.textContent = display;
-    bar.setAttribute('aria-valuenow', Math.round(pct));
+  if (state.relMeterInterval) clearInterval(state.relMeterInterval);
 
-    if (pct < 99.99) {
-      state.relMeterRAF = requestAnimationFrame(step);
-    } else {
+  // CSS transition drives the bar width; JS just counts the displayed number
+  fill.style.width = '0%';
+  // Force reflow so transition fires from 0
+  void fill.offsetWidth;
+  fill.style.width = '99.99%';
+
+  let displayed = 0;
+  const target  = 99.99;
+  const duration = 3200; // matches CSS transition
+  const start    = performance.now();
+
+  state.relMeterInterval = setInterval(() => {
+    const elapsed = performance.now() - start;
+    const progress = Math.min(elapsed / duration, 1);
+    // ease-out curve for the number
+    displayed = target * (1 - Math.pow(1 - progress, 3));
+    pctEl.textContent = displayed >= target ? '99.99%' : displayed.toFixed(1) + '%';
+    bar.setAttribute('aria-valuenow', Math.round(displayed));
+
+    if (progress >= 1) {
+      clearInterval(state.relMeterInterval);
+      pctEl.textContent = '99.99%';
       showToast('❤️ 99.99% Compatibility Confirmed!');
     }
-  }
-
-  if (state.relMeterRAF) cancelAnimationFrame(state.relMeterRAF);
-  state.relMeterRAF = requestAnimationFrame(step);
+  }, 100);
 }
 
 /* ──────────────────────────────────────────
