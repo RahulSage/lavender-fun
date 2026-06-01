@@ -242,16 +242,47 @@ function initQuestionPage() {
 
   yesBtn.addEventListener('click', handleYes);
 
-  // NO button only runs away when the user actually tries to click it
+  // Cooldown so the button doesn't fire on every mousemove frame
+  let noBtnCooldown = false;
+
+  // Cursor proximity — only triggers once per cooldown window
+  document.addEventListener('mousemove', e => {
+    if (state.currentPage !== 'question' || noBtnCooldown) return;
+    const rect = noBtn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top  + rect.height / 2;
+    if (Math.hypot(e.clientX - cx, e.clientY - cy) < 110) {
+      noBtnCooldown = true;
+      runAwayNoBtn(e.clientX, e.clientY);
+      setTimeout(() => { noBtnCooldown = false; }, 450);
+    }
+  });
+
+  // Touch proximity
+  document.addEventListener('touchmove', e => {
+    if (state.currentPage !== 'question' || noBtnCooldown) return;
+    const touch = e.touches[0];
+    const rect = noBtn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top  + rect.height / 2;
+    if (Math.hypot(touch.clientX - cx, touch.clientY - cy) < 140) {
+      noBtnCooldown = true;
+      runAwayNoBtn(touch.clientX, touch.clientY);
+      setTimeout(() => { noBtnCooldown = false; }, 450);
+    }
+  }, { passive: true });
+
+  // Also run away on direct click/tap
   noBtn.addEventListener('click', e => {
     e.preventDefault();
     e.stopPropagation();
-    runAwayNoBtn();
+    runAwayNoBtn(e.clientX, e.clientY);
   });
 
   noBtn.addEventListener('touchstart', e => {
     e.preventDefault();
-    runAwayNoBtn();
+    const t = e.touches[0];
+    runAwayNoBtn(t.clientX, t.clientY);
   }, { passive: false });
 }
 
@@ -262,44 +293,51 @@ function positionNoBtn() {
   noBtn.style.top  = '70%';
 }
 
-function runAwayNoBtn() {
+function runAwayNoBtn(cursorX = -999, cursorY = -999) {
   const noBtn = $('noBtn');
   state.escapeCount++;
   $('escapeCount').textContent = state.escapeCount;
 
   // Pick message
-  let msg = escapeExtra[state.escapeCount] || escapeMsgs[Math.floor(Math.random() * escapeMsgs.length)];
+  const msg = escapeExtra[state.escapeCount] || escapeMsgs[Math.floor(Math.random() * escapeMsgs.length)];
   const msgEl = $('escapeMsg');
   msgEl.textContent = msg;
   msgEl.style.opacity = '1';
   clearTimeout(runAwayNoBtn._msgTimer);
   runAwayNoBtn._msgTimer = setTimeout(() => { msgEl.style.opacity = '0'; }, 1800);
 
-  // Random position within viewport, away from edges
-  const btnW = noBtn.offsetWidth  || 100;
-  const btnH = noBtn.offsetHeight || 48;
-  const margin = 20;
-  const maxX = window.innerWidth  - btnW - margin;
-  const maxY = window.innerHeight - btnH - margin;
+  const btnW  = noBtn.offsetWidth  || 110;
+  const btnH  = noBtn.offsetHeight || 48;
+  const pad   = 24;
+  const maxX  = window.innerWidth  - btnW - pad;
+  const maxY  = window.innerHeight - btnH - pad;
 
-  let newX, newY;
-  // Try 8 candidates, pick the one farthest from mouse (if available)
-  const candidates = Array.from({ length: 8 }, () => ({
-    x: margin + Math.random() * maxX,
-    y: margin + Math.random() * maxY,
-  }));
-  newX = candidates[Math.floor(Math.random() * candidates.length)].x;
-  newY = candidates[Math.floor(Math.random() * candidates.length)].y;
+  // Current centre of the button
+  const rect  = noBtn.getBoundingClientRect();
+  const curBX = rect.left + btnW / 2;
+  const curBY = rect.top  + btnH / 2;
 
-  // Slight rotation for bounce feel
-  const rot = (Math.random() - 0.5) * 20;
-  noBtn.style.left      = `${newX}px`;
-  noBtn.style.top       = `${newY}px`;
+  // Generate 12 candidates and score each by combined distance from
+  // cursor AND from current position — pick the farthest one.
+  let bestX = pad, bestY = pad, bestScore = -1;
+  for (let i = 0; i < 12; i++) {
+    const cx = pad + Math.random() * maxX;
+    const cy = pad + Math.random() * maxY;
+    const midX = cx + btnW / 2;
+    const midY = cy + btnH / 2;
+    const dCursor = Math.hypot(midX - cursorX, midY - cursorY);
+    const dCurrent = Math.hypot(midX - curBX, midY - curBY);
+    // Weight cursor distance more so it always moves away from the mouse
+    const score = dCursor * 1.6 + dCurrent;
+    if (score > bestScore) { bestScore = score; bestX = cx; bestY = cy; }
+  }
+
+  const rot = (Math.random() - 0.5) * 18;
+  noBtn.style.transition = 'left 0.35s cubic-bezier(.22,.68,0,1.4), top 0.35s cubic-bezier(.22,.68,0,1.4), transform 0.3s ease';
+  noBtn.style.left      = `${bestX}px`;
+  noBtn.style.top       = `${bestY}px`;
   noBtn.style.transform = `rotate(${rot}deg)`;
-  noBtn.style.transition = 'left 0.22s cubic-bezier(.22,.68,0,1.6), top 0.22s cubic-bezier(.22,.68,0,1.6), transform 0.22s ease';
-
-  // Reset transform after animation
-  setTimeout(() => { noBtn.style.transform = 'rotate(0deg)'; }, 350);
+  setTimeout(() => { noBtn.style.transform = 'rotate(0deg)'; }, 400);
 }
 
 /* ──────────────────────────────────────────
