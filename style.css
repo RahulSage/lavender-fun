@@ -981,7 +981,10 @@ body.dark-mode .rel-meter-pct { mix-blend-mode: screen; color: #fff; }
   .btn-yes, .btn-no { width: 100%; max-width: 220px; }
 }
 
-/* ── 27. Focus outline for all interactive elements ── */
+/* ── 27. Ensure HTML hidden attribute always wins over display rules ── */
+[hidden] { display: none !important; }
+
+/* ── 28. Focus outline for all interactive elements ── */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
